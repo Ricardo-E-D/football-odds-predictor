@@ -1,5 +1,8 @@
 # Football Odds Predictor
 
+**Live at: https://football-odds-predictor-xjuj.onrender.com** (free tier — first
+load after idle takes ~30–60 s while the server wakes up)
+
 Personal analysis/education project. It pulls historical football match results and
 bookmaker odds, fits a probabilistic model of match outcomes, backtests that model
 honestly (in time order, scored with proper probability metrics), and serves upcoming
