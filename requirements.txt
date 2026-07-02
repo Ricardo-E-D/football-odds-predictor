@@ -3,3 +3,7 @@
 # Phase 1 — data collection
 requests==2.34.2
 pandas==3.0.3
+
+# Phase 2 — modeling
+scipy==1.18.0
+pytest==9.1.1
