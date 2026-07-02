@@ -12,13 +12,18 @@ Endpoints:
 """
 
 import os
+from datetime import datetime, timezone
 from functools import lru_cache
 
 import numpy as np
 import pandas as pd
+import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from backend import model_store
 from backend.config import LEAGUES, PROCESSED_DIR, ROOT
@@ -30,6 +35,8 @@ load_dotenv(ROOT / ".env")
 
 app = FastAPI(title="Football Odds Predictor", version="0.1")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.mount("/static", StaticFiles(directory=ROOT / "frontend" / "static"), name="static")
+templates = Jinja2Templates(directory=ROOT / "frontend" / "templates")
 
 _state: dict = {"models": None, "fitted_through": None}
 
@@ -50,8 +57,7 @@ def leagues():
     return [{"code": code, "name": name} for code, (name, _) in LEAGUES.items()]
 
 
-@app.get("/api/fixtures/{league}")
-def fixtures(league: str):
+def _build_fixtures(league: str) -> dict:
     if league not in LEAGUES:
         raise HTTPException(404, f"unknown league {league!r}")
     api_key = os.environ.get("ODDS_API_KEY")
@@ -84,6 +90,57 @@ def fixtures(league: str):
 
     return {"league": league, "name": LEAGUES[league][0], "fetched_at": fetched_at,
             "fitted_through": _state["fitted_through"], "fixtures": out}
+
+
+@app.get("/api/fixtures/{league}")
+def fixtures(league: str):
+    return _build_fixtures(league)
+
+
+@app.get("/", response_class=HTMLResponse)
+def index(request: Request, league: str = "E0"):
+    error, data = None, None
+    try:
+        data = _build_fixtures(league)
+    except HTTPException as exc:
+        error = exc.detail
+    except requests.RequestException as exc:
+        error = f"could not reach The Odds API: {exc}"
+
+    if data:
+        for f in data["fixtures"]:
+            kickoff = datetime.fromisoformat(f["commence_time"].replace("Z", "+00:00"))
+            f["kickoff"] = kickoff.strftime("%a %d %b, %H:%M UTC")
+            # flag the outcome with the biggest model-market disagreement (if >=5pp)
+            f["flag"] = None
+            if f["model"]:
+                diffs = {k: abs(f["model"][k] - f["market"][k]) for k in "hda"}
+                worst = max(diffs, key=diffs.get)
+                if diffs[worst] >= 0.05:
+                    f["flag"] = worst
+
+    return templates.TemplateResponse(request, "index.html", {
+        "leagues": LEAGUES, "current": league, "data": data, "error": error,
+        "summary": _backtest_summary(),
+        "fetched_ago": _age_label(data["fetched_at"]) if data else None,
+    })
+
+
+@app.get("/chart.png")
+def chart():
+    path = ROOT / "notebooks" / "backtest_chart.png"
+    if not path.exists():
+        raise HTTPException(404, "chart not generated")
+    return FileResponse(path)
+
+
+def _age_label(fetched_at: float) -> str:
+    minutes = (datetime.now(timezone.utc).timestamp() - fetched_at) / 60
+    if minutes < 1:
+        return "just now"
+    if minutes < 60:
+        return f"{minutes:.0f} min ago"
+    return f"{minutes / 60:.1f} h ago"
 
 
 @lru_cache(maxsize=1)

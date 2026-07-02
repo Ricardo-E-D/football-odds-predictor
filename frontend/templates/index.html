@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Football Odds Predictor</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>Football Odds Predictor</h1>
+  <p class="subtitle">Poisson model probabilities vs the betting market — an analysis tool, not betting advice.
+    {% if summary.available %}The backtest says: trust the market.{% endif %}</p>
+</header>
+
+<nav class="leagues">
+  {% for code, (name, _) in leagues.items() %}
+    <a href="/?league={{ code }}" class="{{ 'active' if code == current else '' }}">{{ name }}</a>
+  {% endfor %}
+</nav>
+
+<main>
+  {% if error %}
+    <div class="notice error">{{ error }}</div>
+  {% elif not data.fixtures %}
+    <div class="notice">No upcoming fixtures are priced for {{ data.name }} right now — probably off-season.
+      Try another league.</div>
+  {% else %}
+    <p class="meta">{{ data.fixtures | length }} fixtures · odds fetched {{ fetched_ago }} ·
+      model trained on matches through {{ data.fitted_through }}</p>
+
+    <table class="fixtures">
+      <thead>
+        <tr>
+          <th>Kickoff</th>
+          <th>Match</th>
+          <th colspan="3">Model H / D / A</th>
+          <th colspan="3">Market H / D / A</th>
+          <th>Odds H / D / A</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in data.fixtures %}
+        <tr>
+          <td class="kickoff">{{ f.kickoff }}</td>
+          <td class="match">{{ f.home }} <span class="vs">v</span> {{ f.away }}</td>
+          {% if f.model %}
+            {% for k in ['h', 'd', 'a'] %}
+              <td class="prob {{ 'flag' if f.flag == k else '' }}">{{ '%.0f' % (f.model[k] * 100) }}%</td>
+            {% endfor %}
+          {% else %}
+            <td colspan="3" class="nomodel" title="One or both teams have no history in this league's training data">no prediction</td>
+          {% endif %}
+          {% for k in ['h', 'd', 'a'] %}
+            <td class="prob market">{{ '%.0f' % (f.market[k] * 100) }}%</td>
+          {% endfor %}
+          <td class="odds">{{ '%.2f' % f.odds.h }} / {{ '%.2f' % f.odds.d }} / {{ '%.2f' % f.odds.a }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="legend">Highlighted cells: model and market disagree by 5+ percentage points.
+      The backtest below shows whose number to believe when that happens.</p>
+  {% endif %}
+
+  {% if summary.available %}
+  <section class="backtest">
+    <h2>How good is the model, honestly?</h2>
+    <p>Walk-forward backtest, {{ '{:,}'.format(summary.matches) }} matches (2013–2026):
+      model log-loss <strong>{{ summary.model_logloss }}</strong> vs bookmaker
+      <strong>{{ summary.book_logloss }}</strong> — lower is better, and
+      <strong>the bookmaker wins in every league tested</strong>.</p>
+    <p class="verdict">{{ summary.verdict }}</p>
+    <details>
+      <summary>Per-league results</summary>
+      <table class="perleague">
+        <thead><tr><th>League</th><th>Matches</th><th>Model log-loss</th><th>Market log-loss</th></tr></thead>
+        <tbody>
+          {% for row in summary.per_league %}
+          <tr>
+            <td>{{ row.name }}</td><td>{{ '{:,}'.format(row.matches) }}</td>
+            <td>{{ row.model_logloss }}</td><td class="better">{{ row.book_logloss }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </details>
+    <img src="/chart.png" alt="Backtest results: model vs bookmaker log-loss per league, and value-betting P&L declining steadily" class="chart">
+  </section>
+  {% endif %}
+</main>
+
+<footer>
+  <p>Data: <a href="https://www.football-data.co.uk/">football-data.co.uk</a> (historical) ·
+    <a href="https://the-odds-api.com/">The Odds API</a> (current odds) ·
+    <a href="https://github.com/Ricardo-E-D/football-odds-predictor">source on GitHub</a></p>
+</footer>
+</body>
+</html>
