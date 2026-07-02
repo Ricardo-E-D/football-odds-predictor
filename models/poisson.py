@@ -101,3 +101,14 @@ class PoissonModel:
 
     def knows(self, team: str) -> bool:
         return team in self.attack
+
+    def to_dict(self) -> dict:
+        return {"xi": self.xi, "base": self.base, "home_adv": self.home_adv,
+                "attack": self.attack, "defence": self.defence}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "PoissonModel":
+        model = cls(xi=d["xi"])
+        model.base, model.home_adv = d["base"], d["home_adv"]
+        model.attack, model.defence = dict(d["attack"]), dict(d["defence"])
+        return model

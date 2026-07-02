@@ -46,7 +46,7 @@ def season_code(start_year: int) -> str:
     return f"{start_year % 100:02d}{(start_year + 1) % 100:02d}"
 
 
-def download(force: bool = False) -> None:
+def download(force: bool = False) -> list[str]:
     session = requests.Session()
     session.headers["User-Agent"] = "football-odds-predictor (personal research)"
     ok, skipped, failed = 0, 0, []
@@ -77,10 +77,11 @@ def download(force: bool = False) -> None:
     print(f"\n{ok} downloaded, {skipped} skipped (already present), {len(failed)} failed")
     if failed:
         print("failed:", ", ".join(failed))
-        sys.exit(1)
+    return failed
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--force", action="store_true", help="re-download all files")
-    download(force=parser.parse_args().force)
+    if download(force=parser.parse_args().force):
+        sys.exit(1)
