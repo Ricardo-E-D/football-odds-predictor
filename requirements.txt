@@ -1,1 +1,5 @@
 # Dependencies are added phase by phase.
+
+# Phase 1 — data collection
+requests==2.34.2
+pandas==3.0.3
