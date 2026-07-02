@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Data — everything here is re-downloadable/rebuildable from source
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Secrets — API keys live in environment variables, never in the repo
+.env
+
+# Frontend
+node_modules/
+frontend/dist/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
