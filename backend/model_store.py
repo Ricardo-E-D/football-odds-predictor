@@ -43,9 +43,18 @@ def load_saved() -> tuple[dict[str, PoissonModel], str] | None:
 
 
 def get_models(force_refit: bool = False) -> tuple[dict[str, PoissonModel], str]:
-    """Load saved models if they cover all downloaded data, else refit and save."""
+    """Load saved models if they cover all downloaded data, else refit and save.
+
+    On a deployed server there is no raw data — the committed parameter file
+    is the only source, so it is served as-is.
+    """
     saved = None if force_refit else load_saved()
-    matches = load_matches()
+    try:
+        matches = load_matches()
+    except ValueError:  # no raw CSVs on disk (ephemeral hosting)
+        if saved is not None:
+            return saved
+        raise RuntimeError("no raw data and no saved model parameters") from None
     latest = str(matches["date"].max().date())
     if saved is not None and saved[1] >= latest:
         return saved

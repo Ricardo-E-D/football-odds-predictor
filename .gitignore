@@ -11,6 +11,9 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+# deployable artifacts: fitted model params + backtest summary (small, needed on the server)
+!data/processed/model_params.json
+!data/processed/backtest_summary.json
 
 # Secrets — API keys live in environment variables, never in the repo
 .env

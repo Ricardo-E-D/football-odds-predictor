@@ -1,0 +1,109 @@
+{
+ "available": true,
+ "matches": 66490,
+ "model_logloss": 1.0356,
+ "book_logloss": 1.0078,
+ "model_brier": 0.6185,
+ "book_brier": 0.6033,
+ "verdict": "The bookmaker beats the model in every league tested. Value betting on model-market disagreements lost ~9.5% ROI over 44k simulated bets (2013-2026). No edge.",
+ "per_league": [
+  {
+   "league": "B1",
+   "name": "Belgian Pro League",
+   "matches": 3402,
+   "model_logloss": 1.028,
+   "book_logloss": 0.9911
+  },
+  {
+   "league": "D2",
+   "name": "2. Bundesliga",
+   "matches": 3911,
+   "model_logloss": 1.0746,
+   "book_logloss": 1.0529
+  },
+  {
+   "league": "E0",
+   "name": "Premier League",
+   "matches": 4888,
+   "model_logloss": 0.9809,
+   "book_logloss": 0.9592
+  },
+  {
+   "league": "E1",
+   "name": "Championship",
+   "matches": 7091,
+   "model_logloss": 1.0537,
+   "book_logloss": 1.035
+  },
+  {
+   "league": "E2",
+   "name": "League One",
+   "matches": 6868,
+   "model_logloss": 1.0544,
+   "book_logloss": 1.028
+  },
+  {
+   "league": "E3",
+   "name": "League Two",
+   "matches": 6933,
+   "model_logloss": 1.078,
+   "book_logloss": 1.0509
+  },
+  {
+   "league": "F2",
+   "name": "Ligue 2",
+   "matches": 4621,
+   "model_logloss": 1.0909,
+   "book_logloss": 1.0429
+  },
+  {
+   "league": "G1",
+   "name": "Greek Super League",
+   "matches": 3033,
+   "model_logloss": 0.949,
+   "book_logloss": 0.928
+  },
+  {
+   "league": "I2",
+   "name": "Serie B",
+   "matches": 5229,
+   "model_logloss": 1.093,
+   "book_logloss": 1.0481
+  },
+  {
+   "league": "N1",
+   "name": "Eredivisie",
+   "matches": 3867,
+   "model_logloss": 0.9589,
+   "book_logloss": 0.945
+  },
+  {
+   "league": "P1",
+   "name": "Primeira Liga",
+   "matches": 3783,
+   "model_logloss": 0.9388,
+   "book_logloss": 0.9217
+  },
+  {
+   "league": "SC0",
+   "name": "Scottish Premiership",
+   "matches": 2766,
+   "model_logloss": 0.9659,
+   "book_logloss": 0.9476
+  },
+  {
+   "league": "SP2",
+   "name": "La Liga 2",
+   "matches": 5891,
+   "model_logloss": 1.0767,
+   "book_logloss": 1.0397
+  },
+  {
+   "league": "T1",
+   "name": "S\u00fcper Lig",
+   "matches": 4207,
+   "model_logloss": 1.0135,
+   "book_logloss": 0.9851
+  }
+ ]
+}
